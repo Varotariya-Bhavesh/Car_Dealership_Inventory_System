@@ -122,3 +122,50 @@ export const validateCreateVehicle = (
   next();
 };
 
+// ─── Update Vehicle Validator ──────────────────────────────────────────────────
+
+/**
+ * Validates optional fields for PUT /api/vehicles/:id.
+ */
+export const validateUpdateVehicle = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const { price, quantity } = req.body as Record<string, unknown>;
+
+  if (price !== undefined && (typeof price !== 'number' || isNaN(price) || price < 0)) {
+    res.status(400).json({ message: 'Vehicle price must be a non-negative number' });
+    return;
+  }
+
+  if (quantity !== undefined && (typeof quantity !== 'number' || isNaN(quantity) || quantity < 0)) {
+    res.status(400).json({ message: 'Vehicle quantity must be a non-negative number' });
+    return;
+  }
+
+  next();
+};
+
+// ─── Restock Vehicle Validator ─────────────────────────────────────────────────
+
+/**
+ * Validates quantity for POST /api/vehicles/:id/restock.
+ */
+export const validateRestockVehicle = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const { quantity, adjustment } = req.body as Record<string, unknown>;
+  const amount = (quantity ?? adjustment) as unknown;
+
+  if (amount === undefined || amount === null || typeof amount !== 'number' || isNaN(amount) || amount <= 0) {
+    res.status(400).json({ message: 'Restock quantity must be a positive number' });
+    return;
+  }
+
+  next();
+};
+
+

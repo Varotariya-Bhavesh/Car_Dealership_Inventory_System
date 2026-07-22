@@ -1,5 +1,5 @@
 import { supabase } from '../config/supabase';
-import { Vehicle, CreateVehicleRequestBody, VehicleSearchQuery } from '../types';
+import { Vehicle, CreateVehicleRequestBody, UpdateVehicleRequestBody, VehicleSearchQuery } from '../types';
 
 export class VehicleRepository {
   /**
@@ -20,6 +20,23 @@ export class VehicleRepository {
 
     if (error || !data) {
       throw new Error(error?.message ?? 'Failed to create vehicle');
+    }
+
+    return data as Vehicle;
+  }
+
+  /**
+   * Find vehicle by ID.
+   */
+  public static async findById(id: string): Promise<Vehicle | null> {
+    const { data, error } = await supabase
+      .from('vehicles')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+      return null;
     }
 
     return data as Vehicle;
@@ -80,5 +97,69 @@ export class VehicleRepository {
     }
 
     return (data as Vehicle[]) ?? [];
+  }
+
+  /**
+   * Update an existing vehicle by ID.
+   */
+  public static async update(id: string, payload: UpdateVehicleRequestBody): Promise<Vehicle | null> {
+    const updatePayload: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    };
+
+    if (payload.make !== undefined) updatePayload.make = payload.make.trim();
+    if (payload.model !== undefined) updatePayload.model = payload.model.trim();
+    if (payload.category !== undefined) updatePayload.category = payload.category.trim();
+    if (payload.price !== undefined) updatePayload.price = payload.price;
+    if (payload.quantity !== undefined) updatePayload.quantity = payload.quantity;
+
+    const { data, error } = await supabase
+      .from('vehicles')
+      .update(updatePayload)
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return data as Vehicle;
+  }
+
+  /**
+   * Delete a vehicle by ID.
+   */
+  public static async delete(id: string): Promise<boolean> {
+    const { data, error } = await supabase
+      .from('vehicles')
+      .delete()
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error || !data) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Update stock quantity for a vehicle by ID.
+   */
+  public static async updateQuantity(id: string, newQuantity: number): Promise<Vehicle | null> {
+    const { data, error } = await supabase
+      .from('vehicles')
+      .update({ quantity: newQuantity, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return data as Vehicle;
   }
 }

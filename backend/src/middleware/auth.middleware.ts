@@ -33,3 +33,28 @@ export const authenticateJwt = (
     res.status(401).json({ message: 'Unauthorized: Invalid or expired token' });
   }
 };
+
+/**
+ * Require Admin Role Guard
+ * Ensures only users with role === 'admin' can access restricted endpoints.
+ */
+export const requireAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const user = (req as AuthenticatedRequest).user;
+
+  if (!user) {
+    res.status(401).json({ message: 'Unauthorized: Authentication required' });
+    return;
+  }
+
+  if (user.role !== 'admin') {
+    res.status(403).json({ message: 'Forbidden: Admin access required' });
+    return;
+  }
+
+  next();
+};
+
