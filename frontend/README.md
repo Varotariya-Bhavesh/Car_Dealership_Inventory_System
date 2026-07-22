@@ -50,7 +50,11 @@ Visible **ONLY** to logged-in users with the `Admin` role:
 Ensure you have **Node.js** (v18+) and **npm** installed.
 
 ### 2. Configure Environment Variables
-Create a `.env` file in the `frontend` root directory:
+Copy `.env.example` to `.env` in the `frontend` root directory:
+```bash
+cp .env.example .env
+```
+Ensure `VITE_API_BASE_URL` points to your active backend:
 ```env
 VITE_API_BASE_URL=http://localhost:3000/api
 ```
@@ -107,7 +111,8 @@ frontend/
 │   ├── App.tsx                   # Main Router & Provider setup
 │   ├── main.tsx                  # React DOM root entry
 │   └── index.css                 # Tailwind CSS directives
-├── .env                          # Environment variables
+├── .env                          # Local environment variables (git-ignored)
+├── .env.example                  # Template environment variables for setup
 ├── .gitignore                    # Git ignore rules configuration
 ├── apidocs.md                    # Backend API specification documentation
 ├── index.html                    # HTML entry template
