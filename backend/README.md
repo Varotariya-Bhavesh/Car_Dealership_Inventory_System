@@ -1,0 +1,152 @@
+# 🚗 Car Inventory Management System — Backend API
+
+A robust, production-ready RESTful backend API built using **Node.js**, **TypeScript**, **Express**, **Supabase (PostgreSQL)**, and **JWT Authentication**, adhering strictly to **Test-Driven Development (TDD)** and **SOLID design principles**.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Runtime & Language:** Node.js, TypeScript (ES2020)
+- **Framework:** Express.js
+- **Database:** Supabase (PostgreSQL via `@supabase/supabase-js`)
+- **Authentication:** JSON Web Tokens (`jsonwebtoken`), `bcryptjs` for password hashing
+- **Testing:** Jest, Supertest (100% mocked DB & HTTP integration tests)
+- **API Documentation:** Swagger UI (`swagger-ui-express`, `swagger-jsdoc`)
+
+---
+
+## ✨ Features
+
+- **User Authentication:**
+  - `POST /api/auth/register` — Validates payload, checks email uniqueness, hashes passwords with bcrypt, inserts user record into Supabase, and returns a clean public user profile (never exposing `password_hash`).
+  - `POST /api/auth/login` — Authenticates credentials, generates a signed JWT token containing `userId`, `email`, and `role`, and protects against user-enumeration attacks by returning uniform error messages.
+- **Interactive Documentation:** Live Swagger UI available at `/api-docs/`.
+- **Domain Layering & Clean Architecture:** Controller -> Service -> Database abstraction. Custom domain exception hierarchy.
+
+---
+
+## 📁 Project Structure
+
+```
+backend/
+├── src/
+│   ├── config/
+│   │   ├── supabase.ts        # Supabase Service-Role client initialization
+│   │   └── swagger.ts         # Swagger OpenAPI 3.0 configuration
+│   ├── controllers/
+│   │   └── auth.controller.ts # Thin HTTP request handlers
+│   ├── errors/
+│   │   └── app-error.ts       # Custom domain exception classes
+│   ├── middleware/
+│   │   └── validate.ts        # Request payload validation guards
+│   ├── routes/
+│   │   └── auth.routes.ts     # Express routes annotated with @openapi
+│   ├── services/
+│   │   └── auth.service.ts    # Core authentication & user business logic
+│   ├── types/
+│   │   └── index.ts           # Shared TypeScript interfaces & types
+│   ├── app.ts                 # Express Application factory (testable without port binding)
+│   └── server.ts              # Entry point starting HTTP server
+├── tests/
+│   ├── auth.test.ts           # TDD unit/integration tests for Auth endpoints
+│   └── swagger.test.ts        # Tests verifying Swagger UI endpoints
+├── .env.example               # Environment variables template
+├── jest.config.js             # Jest & ts-jest configuration
+├── tsconfig.json              # TypeScript configuration (strict mode)
+└── package.json
+```
+
+---
+
+## 🗄️ Database Setup (Supabase)
+
+To initialize the database table in your Supabase project, execute the following SQL statement in the **Supabase SQL Editor**:
+
+```sql
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'staff' CHECK (role IN ('admin', 'staff')),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+---
+
+## ⚙️ Environment Variables Setup
+
+Create a `.env` file in the `backend/` root folder (copy from `.env.example`):
+
+```bash
+cp .env.example .env
+```
+
+Configure your environment variables inside `.env`:
+
+```env
+NODE_ENV=development
+PORT=3000
+
+# Supabase Credentials (Project Settings -> API)
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# Authentication
+JWT_SECRET=your-super-secret-jwt-key
+JWT_EXPIRES_IN=7d
+```
+
+> ⚠️ **Important:** Ensure `SUPABASE_SERVICE_ROLE_KEY` is kept secret and never committed to version control.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Run Development Server
+```bash
+npm run dev
+```
+The server will start at: `http://localhost:3000`
+
+### 3. Interactive API Documentation (Swagger)
+Open your browser and visit:
+👉 **`http://localhost:3000/api-docs/`**
+
+To retrieve the raw OpenAPI 3.0 JSON specification:
+👉 **`http://localhost:3000/api-docs.json`**
+
+---
+
+## 🧪 Running Tests (TDD)
+
+The test suite runs using Jest & Supertest without modifying your live database (Supabase is fully mocked for fast, isolated test execution).
+
+```bash
+# Run all test suites
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Generate test coverage report
+npm run test:coverage
+```
+
+---
+
+## 📦 Production Build
+
+```bash
+# Compile TypeScript to dist/
+npm run build
+
+# Start production server
+npm start
+```
