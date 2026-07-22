@@ -21,15 +21,16 @@ A robust, production-ready RESTful backend API built using **Node.js**, **TypeSc
   - `POST /api/auth/register` — Validates payload, checks email uniqueness, hashes passwords with bcrypt, inserts user record into Supabase, and returns a clean public user profile (never exposing `password_hash`).
   - `POST /api/auth/login` — Authenticates credentials, generates a signed JWT token containing `userId`, `email`, and `role`, and protects against user-enumeration attacks by returning uniform error messages.
 - **Core Vehicle Inventory Operations (JWT Protected):**
-  - `POST /api/vehicles` — Adds a new vehicle to inventory after validating required fields (`make`, `model`, `category`, `price`, `quantity`).
+  - `POST /api/vehicles` — Adds a new vehicle to inventory after validating required fields (`make`, `model`, `category`, `price`, `quantity`). Supports uploading vehicle image files (`multipart/form-data`) to Supabase Storage.
   - `GET /api/vehicles` — Retrieves all available vehicles sorted by newest creation date.
   - `GET /api/vehicles/search` — Dynamically searches & filters vehicles by `make`, `model`, `category`, or price range (`minPrice`, `maxPrice`).
   - `GET /api/vehicles/:id` — Retrieves detailed information for a single vehicle by ID.
-  - `PUT /api/vehicles/:id` — Updates vehicle details (`make`, `model`, `category`, `price`, `quantity`) with non-negative validation.
+  - `PUT /api/vehicles/:id` — Updates vehicle details (`make`, `model`, `category`, `price`, `quantity`, `image`) with non-negative validation and optional photo replacement.
   - `DELETE /api/vehicles/:id` — **(Admin Only)** Permanently deletes a vehicle from inventory.
   - `POST /api/vehicles/:id/purchase` — Decrements stock quantity by 1 upon customer purchase (returns `400 Bad Request` if out of stock).
   - `POST /api/vehicles/:id/restock` — **(Admin Only)** Restocks inventory by incrementing vehicle quantity by a positive amount.
 
+- **Supabase Storage Integration:** Automatic image file parsing with `multer` memory storage (5MB max size; JPEG, PNG, WEBP, GIF formats) and seamless CDN public URL generation.
 - **Interactive Documentation:** Live Swagger UI available at `/api-docs/` and raw OpenAPI JSON spec at `/api-docs.json`.
 - **Domain Layering & Clean Architecture:** Controller -> Service -> Database abstraction with strict TypeScript interfaces and custom domain exception hierarchy.
 
@@ -50,6 +51,7 @@ backend/
 │   │   └── app-error.ts         # Custom domain exception classes
 │   ├── middleware/
 │   │   ├── auth.middleware.ts   # JWT authentication verification guard
+│   │   ├── upload.middleware.ts # Multer memory storage file upload middleware
 │   │   └── validate.ts          # Request payload validation guards
 │   ├── repositories/
 │   │   └── vehicle.repository.ts# Supabase database abstraction layer for vehicles
@@ -58,6 +60,7 @@ backend/
 │   │   └── vehicle.routes.ts    # Express vehicle routes annotated with @openapi
 │   ├── services/
 │   │   ├── auth.service.ts      # Authentication & user business logic
+│   │   ├── storage.service.ts   # Supabase Storage bucket upload service
 │   │   └── vehicle.service.ts   # Vehicle inventory business logic
 │   ├── types/
 │   │   └── index.ts             # Shared TypeScript interfaces & types

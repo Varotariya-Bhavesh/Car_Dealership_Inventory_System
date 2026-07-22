@@ -23,7 +23,7 @@ AutoVault is a modern, fully responsive Single-Page Application (SPA) built with
 * **Role-Based Access Control:** Differentiates between `Staff` users and `Admin` users, conditionally rendering administrative controls.
 
 ### 🚗 Vehicle Catalog & Search/Filter
-* **Responsive Card Grid:** Displays vehicle specs (Make, Model, Category, Price, and Stock Quantity).
+* **Responsive Card Grid:** Displays vehicle photo banner (if available), specs (Make, Model, Category, Price, and Stock Quantity).
 * **Live Search & Filtering:** Filter by Make, Model, Category dropdown, and Price Range (Min/Max price limits).
 * **Stock Badges:** Clear visual badges for *In Stock*, *Low Stock (≤ 3)*, and *Out of Stock*.
 
@@ -33,8 +33,8 @@ AutoVault is a modern, fully responsive Single-Page Application (SPA) built with
 
 ### 🛡️ Admin Management Dashboard
 Visible **ONLY** to logged-in users with the `Admin` role:
-* **Add Vehicle Modal:** Create new vehicle catalog records (`POST /api/vehicles`).
-* **Edit Vehicle Modal:** Update existing vehicle parameters (`PUT /api/vehicles/:id`).
+* **Add Vehicle Modal:** Create new vehicle catalog records with optional photo file upload (`POST /api/vehicles` via `FormData`).
+* **Edit Vehicle Modal:** Update existing vehicle parameters and upload/replace vehicle photo (`PUT /api/vehicles/:id` via `FormData`).
 * **Delete Vehicle Modal:** Permanent vehicle removal with safety confirmation dialog (`DELETE /api/vehicles/:id`).
 * **Restock Vehicle Modal:** Adjust inventory stock levels (`POST /api/vehicles/:id/restock`).
 
@@ -88,14 +88,14 @@ frontend/
 │   ├── api/
 │   │   └── axios.ts              # Configured Axios client & JWT interceptors
 │   ├── components/
-│   │   ├── AddVehicleModal.tsx   # Admin Add Vehicle Modal
+│   │   ├── AddVehicleModal.tsx   # Admin Add Vehicle Modal (with photo picker & preview)
 │   │   ├── DeleteVehicleModal.tsx# Admin Delete Vehicle Modal
-│   │   ├── EditVehicleModal.tsx  # Admin Edit Vehicle Modal
+│   │   ├── EditVehicleModal.tsx  # Admin Edit Vehicle Modal (with photo upload/replace)
 │   │   ├── Navbar.tsx            # Header with user profile & mobile menu
 │   │   ├── ProtectedRoute.tsx    # Protected route guard component
 │   │   ├── RestockVehicleModal.tsx# Admin Restock Vehicle Modal
 │   │   ├── Toast.tsx             # Action feedback toast alert
-│   │   ├── VehicleCard.tsx       # Grid card with disabled purchase check
+│   │   ├── VehicleCard.tsx       # Grid card with image banner & disabled purchase check
 │   │   └── VehicleFilters.tsx    # Search and specs filter bar
 │   ├── context/
 │   │   ├── AuthContext.tsx       # Auth state, login/register & JWT persistence
@@ -105,7 +105,7 @@ frontend/
 │   │   ├── Login.tsx             # Sign in page
 │   │   └── Register.tsx          # Account creation page
 │   ├── services/
-│   │   └── vehicleService.ts     # Vehicle API endpoints service
+│   │   └── vehicleService.ts     # Vehicle API endpoints service (supports FormData uploads)
 │   ├── types/
 │   │   └── index.ts              # TypeScript interfaces for Auth & Vehicles
 │   ├── App.tsx                   # Main Router & Provider setup
@@ -132,7 +132,7 @@ frontend/
 | `/api/vehicles` | `GET` | Staff / Admin | Fetch all inventory vehicles |
 | `/api/vehicles/search` | `GET` | Staff / Admin | Search/filter vehicle catalog |
 | `/api/vehicles/:id/purchase` | `POST` | Staff / Admin | Purchase vehicle (decrements quantity) |
-| `/api/vehicles` | `POST` | Admin Only | Add new vehicle record |
-| `/api/vehicles/:id` | `PUT` | Admin Only | Update vehicle details |
+| `/api/vehicles` | `POST` | Admin Only | Add new vehicle record (supports `multipart/form-data` image upload) |
+| `/api/vehicles/:id` | `PUT` | Admin Only | Update vehicle details (supports `multipart/form-data` image upload) |
 | `/api/vehicles/:id/restock` | `POST` | Admin Only | Add stock quantity |
 | `/api/vehicles/:id` | `DELETE` | Admin Only | Delete vehicle from inventory |
