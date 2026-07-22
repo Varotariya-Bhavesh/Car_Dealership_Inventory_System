@@ -86,7 +86,7 @@ export const validateCreateVehicle = (
   res: Response,
   next: NextFunction
 ): void => {
-  const { make, model, category, price, quantity } = req.body as Record<string, unknown>;
+  const { make, model, category } = req.body as Record<string, unknown>;
 
   if (!make || typeof make !== 'string' || make.trim() === '') {
     res.status(400).json({ message: 'Vehicle make is required' });
@@ -103,10 +103,17 @@ export const validateCreateVehicle = (
     return;
   }
 
+  const rawPrice = req.body.price as unknown;
+  const price = typeof rawPrice === 'string' ? Number(rawPrice) : (rawPrice as number);
+
   if (price === undefined || price === null || typeof price !== 'number' || isNaN(price) || price < 0) {
     res.status(400).json({ message: 'Vehicle price is required and must be a non-negative number' });
     return;
   }
+  req.body.price = price;
+
+  const rawQuantity = req.body.quantity as unknown;
+  const quantity = typeof rawQuantity === 'string' ? Number(rawQuantity) : (rawQuantity as number);
 
   if (
     quantity === undefined ||
@@ -118,6 +125,7 @@ export const validateCreateVehicle = (
     res.status(400).json({ message: 'Vehicle quantity in stock is required and must be a non-negative number' });
     return;
   }
+  req.body.quantity = quantity;
 
   next();
 };
@@ -132,16 +140,24 @@ export const validateUpdateVehicle = (
   res: Response,
   next: NextFunction
 ): void => {
-  const { price, quantity } = req.body as Record<string, unknown>;
-
-  if (price !== undefined && (typeof price !== 'number' || isNaN(price) || price < 0)) {
-    res.status(400).json({ message: 'Vehicle price must be a non-negative number' });
-    return;
+  if (req.body.price !== undefined) {
+    const rawPrice = req.body.price as unknown;
+    const price = typeof rawPrice === 'string' ? Number(rawPrice) : (rawPrice as number);
+    if (typeof price !== 'number' || isNaN(price) || price < 0) {
+      res.status(400).json({ message: 'Vehicle price must be a non-negative number' });
+      return;
+    }
+    req.body.price = price;
   }
 
-  if (quantity !== undefined && (typeof quantity !== 'number' || isNaN(quantity) || quantity < 0)) {
-    res.status(400).json({ message: 'Vehicle quantity must be a non-negative number' });
-    return;
+  if (req.body.quantity !== undefined) {
+    const rawQuantity = req.body.quantity as unknown;
+    const quantity = typeof rawQuantity === 'string' ? Number(rawQuantity) : (rawQuantity as number);
+    if (typeof quantity !== 'number' || isNaN(quantity) || quantity < 0) {
+      res.status(400).json({ message: 'Vehicle quantity must be a non-negative number' });
+      return;
+    }
+    req.body.quantity = quantity;
   }
 
   next();

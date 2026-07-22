@@ -309,15 +309,15 @@ Fetch single vehicle details by unique ID.
 ---
 
 ### 3.4 Add New Vehicle
-Create a new vehicle entry in the inventory.
+Create a new vehicle entry in the inventory (supports optional image file upload).
 
 - **Method:** `POST`
 - **Path:** `/api/vehicles`
 - **Token Required:** ✅ **Yes** (User Token required)
 - **Allowed Roles:** `staff`, `admin`
-- **Headers:** `Authorization: Bearer <JWT_TOKEN>`, `Content-Type: application/json`
+- **Headers:** `Authorization: Bearer <JWT_TOKEN>`, `Content-Type: multipart/form-data` or `application/json`
 
-#### Input Parameters (Request Body):
+#### Input Parameters (Request Body / FormData):
 | Field | Type | Required | Validation Rules |
 | :--- | :--- | :--- | :--- |
 | `make` | `string` | **Yes** | Vehicle make/brand |
@@ -325,8 +325,9 @@ Create a new vehicle entry in the inventory.
 | `category` | `string` | **Yes** | Vehicle category (e.g., `Sedan`, `SUV`, `Electric`) |
 | `price` | `number` | **Yes** | Non-negative number |
 | `quantity` | `number` | **Yes** | Stock count (non-negative integer) |
+| `image` | `file` | Optional | Binary image file (JPEG, PNG, WEBP, GIF, max 5MB) |
 
-#### Request Body Example:
+#### Request Body Example (JSON / FormData):
 ```json
 {
   "make": "Tesla",
@@ -348,6 +349,7 @@ Create a new vehicle entry in the inventory.
     "category": "Electric SUV",
     "price": 45000,
     "quantity": 5,
+    "image_url": "https://<supabase-project-id>.supabase.co/storage/v1/object/public/vehicle-images/vehicles/1780359600-a1b2c3d.png",
     "created_at": "2026-07-22T10:15:00.000Z",
     "updated_at": "2026-07-22T10:15:00.000Z"
   }
@@ -365,13 +367,13 @@ Create a new vehicle entry in the inventory.
 ---
 
 ### 3.5 Update Vehicle Details
-Modify parameters of an existing vehicle.
+Modify parameters of an existing vehicle (supports uploading/replacing image file).
 
 - **Method:** `PUT`
 - **Path:** `/api/vehicles/:id`
 - **Token Required:** ✅ **Yes** (User Token required)
 - **Allowed Roles:** `staff`, `admin`
-- **Headers:** `Authorization: Bearer <JWT_TOKEN>`, `Content-Type: application/json`
+- **Headers:** `Authorization: Bearer <JWT_TOKEN>`, `Content-Type: multipart/form-data` or `application/json`
 
 #### Input Parameters:
 - **Path Parameter:** `id` (string, required) — UUID of the vehicle
@@ -383,6 +385,7 @@ Modify parameters of an existing vehicle.
 | `category` | `string` | Vehicle category |
 | `price` | `number` | Must be a non-negative number |
 | `quantity` | `number` | Must be a non-negative number |
+| `image` | `file` | Binary image file to upload/replace |
 
 #### Request Body Example:
 ```json
@@ -403,6 +406,7 @@ Modify parameters of an existing vehicle.
     "category": "Electric SUV",
     "price": 47990,
     "quantity": 5,
+    "image_url": "https://<supabase-project-id>.supabase.co/storage/v1/object/public/vehicle-images/vehicles/1780359600-a1b2c3d.png",
     "created_at": "2026-07-22T10:15:00.000Z",
     "updated_at": "2026-07-22T10:20:00.000Z"
   }

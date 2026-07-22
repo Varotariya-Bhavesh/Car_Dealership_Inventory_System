@@ -10,6 +10,7 @@ import {
   restockVehicle,
 } from '../controllers/vehicle.controller';
 import { authenticateJwt, requireAdmin } from '../middleware/auth.middleware';
+import { uploadSingleImage } from '../middleware/upload.middleware';
 import {
   validateCreateVehicle,
   validateUpdateVehicle,
@@ -65,7 +66,7 @@ router.get('/search', authenticateJwt, searchVehicles);
  * @openapi
  * /api/vehicles:
  *   post:
- *     summary: Add a new vehicle
+ *     summary: Add a new vehicle (supports image file upload)
  *     tags:
  *       - Vehicles
  *     security:
@@ -73,6 +74,24 @@ router.get('/search', authenticateJwt, searchVehicles);
  *     requestBody:
  *       required: true
  *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               make:
+ *                 type: string
+ *               model:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               quantity:
+ *                 type: integer
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Vehicle image file (JPEG, PNG, WEBP, GIF)
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/CreateVehicleRequest'
@@ -95,7 +114,7 @@ router.get('/search', authenticateJwt, searchVehicles);
  *       401:
  *         description: Unauthorized
  */
-router.post('/', authenticateJwt, validateCreateVehicle, addVehicle);
+router.post('/', authenticateJwt, uploadSingleImage, validateCreateVehicle, addVehicle);
 router.get('/', authenticateJwt, getVehicles);
 
 /**
@@ -119,7 +138,7 @@ router.get('/', authenticateJwt, getVehicles);
  *       404:
  *         description: Vehicle not found
  *   put:
- *     summary: Update vehicle details
+ *     summary: Update vehicle details (supports image file upload)
  *     tags:
  *       - Vehicles
  *     security:
@@ -133,6 +152,24 @@ router.get('/', authenticateJwt, getVehicles);
  *     requestBody:
  *       required: true
  *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               make:
+ *                 type: string
+ *               model:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               quantity:
+ *                 type: integer
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Vehicle image file
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/UpdateVehicleRequest'
@@ -164,7 +201,7 @@ router.get('/', authenticateJwt, getVehicles);
  *         description: Vehicle not found
  */
 router.get('/:id', authenticateJwt, getVehicleById);
-router.put('/:id', authenticateJwt, validateUpdateVehicle, updateVehicle);
+router.put('/:id', authenticateJwt, uploadSingleImage, validateUpdateVehicle, updateVehicle);
 router.delete('/:id', authenticateJwt, requireAdmin, deleteVehicle);
 
 /**

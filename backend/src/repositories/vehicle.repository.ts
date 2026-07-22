@@ -6,23 +6,51 @@ export class VehicleRepository {
    * Insert a vehicle into Supabase.
    */
   public static async create(payload: CreateVehicleRequestBody): Promise<Vehicle> {
-    const { data, error } = await supabase
+    const insertData: Record<string, unknown> = {
+      make: payload.make.trim(),
+      model: payload.model.trim(),
+      category: payload.category.trim(),
+      price: payload.price,
+      quantity: payload.quantity,
+    };
+
+    if (payload.image_url !== undefined && payload.image_url !== null) {
+      insertData.image_url = payload.image_url;
+    }
+
+    let { data, error } = await supabase
       .from('vehicles')
-      .insert({
-        make: payload.make.trim(),
-        model: payload.model.trim(),
-        category: payload.category.trim(),
-        price: payload.price,
-        quantity: payload.quantity,
-      })
+      .insert(insertData)
       .select('*')
       .single();
+
+    // Fallback if image_url column doesn't exist in Supabase DB yet
+    if (error && error.message.includes('image_url') && insertData.image_url !== undefined) {
+      console.warn(
+        "[VehicleRepository] 'image_url' column missing in Supabase 'vehicles' table. " +
+          "Please run 'ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS image_url TEXT;' in Supabase SQL Editor. " +
+          "Retrying insert without image_url..."
+      );
+      delete insertData.image_url;
+      const retryResult = await supabase
+        .from('vehicles')
+        .insert(insertData)
+        .select('*')
+        .single();
+      data = retryResult.data;
+      error = retryResult.error;
+    }
 
     if (error || !data) {
       throw new Error(error?.message ?? 'Failed to create vehicle');
     }
 
-    return data as Vehicle;
+    const result = { ...(data as Vehicle) };
+    const imageUrl = (data as Vehicle).image_url ?? payload.image_url;
+    if (imageUrl !== undefined) {
+      result.image_url = imageUrl;
+    }
+    return result;
   }
 
   /**
@@ -112,19 +140,43 @@ export class VehicleRepository {
     if (payload.category !== undefined) updatePayload.category = payload.category.trim();
     if (payload.price !== undefined) updatePayload.price = payload.price;
     if (payload.quantity !== undefined) updatePayload.quantity = payload.quantity;
+    if (payload.image_url !== undefined) updatePayload.image_url = payload.image_url;
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('vehicles')
       .update(updatePayload)
       .eq('id', id)
       .select('*')
       .single();
 
+    // Fallback if image_url column doesn't exist in Supabase DB yet
+    if (error && error.message.includes('image_url') && updatePayload.image_url !== undefined) {
+      console.warn(
+        "[VehicleRepository] 'image_url' column missing in Supabase 'vehicles' table. " +
+          "Please run 'ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS image_url TEXT;' in Supabase SQL Editor. " +
+          "Retrying update without image_url..."
+      );
+      delete updatePayload.image_url;
+      const retryResult = await supabase
+        .from('vehicles')
+        .update(updatePayload)
+        .eq('id', id)
+        .select('*')
+        .single();
+      data = retryResult.data;
+      error = retryResult.error;
+    }
+
     if (error || !data) {
       return null;
     }
 
-    return data as Vehicle;
+    const result = { ...(data as Vehicle) };
+    const imageUrl = (data as Vehicle).image_url ?? payload.image_url;
+    if (imageUrl !== undefined) {
+      result.image_url = imageUrl;
+    }
+    return result;
   }
 
   /**

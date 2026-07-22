@@ -53,6 +53,7 @@ export interface Vehicle {
   category: string;
   price: number;
   quantity: number;
+  image_url?: string | null;
   created_at: string;
   updated_at?: string;
 }
@@ -63,6 +64,7 @@ export interface CreateVehicleRequestBody {
   category: string;
   price: number;
   quantity: number;
+  image_url?: string | null;
 }
 
 export interface VehicleSearchQuery {
@@ -79,6 +81,7 @@ export interface UpdateVehicleRequestBody {
   category?: string;
   price?: number;
   quantity?: number;
+  image_url?: string | null;
 }
 
 export interface AdjustStockRequestBody {

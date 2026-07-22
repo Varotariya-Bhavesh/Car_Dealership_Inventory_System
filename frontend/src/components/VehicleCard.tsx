@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Vehicle } from '../types';
-import { ShoppingBag, Loader2, Tag, Car, Layers } from 'lucide-react';
+import { ShoppingBag, Loader2, Car, Layers } from 'lucide-react';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -20,6 +20,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
   onRestock,
 }) => {
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handlePurchase = async () => {
     if (vehicle.quantity <= 0) return;
@@ -42,8 +43,21 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
   }).format(vehicle.price);
 
   return (
-    <div className="bg-slate-800/80 backdrop-blur-md border border-slate-700/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between hover:border-slate-600 transition-all duration-300 group">
-      <div>
+    <div className="bg-slate-800/80 backdrop-blur-md border border-slate-700/80 rounded-2xl shadow-xl flex flex-col justify-between hover:border-slate-600 transition-all duration-300 group overflow-hidden">
+      {/* Vehicle Image Banner */}
+      {vehicle.image_url && !imageError ? (
+        <div className="relative h-44 w-full bg-slate-900 overflow-hidden">
+          <img
+            src={vehicle.image_url}
+            alt={`${vehicle.make} ${vehicle.model}`}
+            onError={() => setImageError(true)}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60" />
+        </div>
+      ) : null}
+
+      <div className="p-6 pb-0">
         {/* Top Header & Stock Badge */}
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
@@ -86,7 +100,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
       </div>
 
       {/* Price & Action Buttons */}
-      <div className="pt-4 border-t border-slate-700/60 mt-4 space-y-3">
+      <div className="p-6 pt-4 border-t border-slate-700/60 mt-2 space-y-3">
         <div className="flex items-baseline justify-between">
           <span className="text-xs text-slate-400 uppercase font-semibold">Price</span>
           <span className="text-2xl font-black text-slate-100 tracking-tight">{formattedPrice}</span>
@@ -120,7 +134,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
           )}
         </button>
 
-        {/* Admin Quick Action Controls (Placeholder for Step 4 integration) */}
+        {/* Admin Quick Action Controls */}
         {isAdmin && (
           <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-700/40 text-xs font-semibold">
             {onEdit && (

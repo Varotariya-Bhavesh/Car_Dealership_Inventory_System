@@ -1,4 +1,5 @@
 import { VehicleRepository } from '../repositories/vehicle.repository';
+import { StorageService } from './storage.service';
 import { Vehicle, CreateVehicleRequestBody, UpdateVehicleRequestBody, VehicleSearchQuery } from '../types';
 import { AppError } from '../errors/app-error';
 
@@ -6,7 +7,14 @@ export class VehicleService {
   /**
    * Creates a new vehicle after validating domain logic.
    */
-  public static async createVehicle(payload: CreateVehicleRequestBody): Promise<Vehicle> {
+  public static async createVehicle(
+    payload: CreateVehicleRequestBody,
+    file?: Express.Multer.File
+  ): Promise<Vehicle> {
+    if (file) {
+      const imageUrl = await StorageService.uploadVehicleImage(file);
+      payload.image_url = imageUrl;
+    }
     return VehicleRepository.create(payload);
   }
 
@@ -38,7 +46,15 @@ export class VehicleService {
   /**
    * Updates an existing vehicle.
    */
-  public static async updateVehicle(id: string, payload: UpdateVehicleRequestBody): Promise<Vehicle> {
+  public static async updateVehicle(
+    id: string,
+    payload: UpdateVehicleRequestBody,
+    file?: Express.Multer.File
+  ): Promise<Vehicle> {
+    if (file) {
+      const imageUrl = await StorageService.uploadVehicleImage(file);
+      payload.image_url = imageUrl;
+    }
     const updated = await VehicleRepository.update(id, payload);
     if (!updated) {
       throw new AppError('Vehicle not found', 404);

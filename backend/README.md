@@ -98,9 +98,13 @@ CREATE TABLE vehicles (
     category VARCHAR(50) NOT NULL,
     price NUMERIC(12, 2) NOT NULL CHECK (price >= 0),
     quantity INT NOT NULL DEFAULT 0 CHECK (quantity >= 0),
+    image_url TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- 3. Migration SQL (Run if your vehicles table already exists)
+ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS image_url TEXT;
 ```
 
 

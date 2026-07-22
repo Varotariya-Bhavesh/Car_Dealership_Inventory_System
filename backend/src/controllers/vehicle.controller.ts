@@ -11,7 +11,7 @@ export const addVehicle = async (
   res: Response
 ): Promise<void> => {
   try {
-    const vehicle = await VehicleService.createVehicle(req.body);
+    const vehicle = await VehicleService.createVehicle(req.body, req.file);
     res.status(201).json({
       message: 'Vehicle created successfully',
       vehicle,
@@ -98,7 +98,7 @@ export const updateVehicle = async (
   res: Response
 ): Promise<void> => {
   try {
-    const vehicle = await VehicleService.updateVehicle(req.params.id, req.body);
+    const vehicle = await VehicleService.updateVehicle(req.params.id, req.body, req.file);
     res.status(200).json({
       message: 'Vehicle updated successfully',
       vehicle,
