@@ -183,6 +183,31 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
+        UpdateVehicleRequest: {
+          type: 'object',
+          properties: {
+            make: {
+              type: 'string',
+              example: 'Toyota',
+            },
+            model: {
+              type: 'string',
+              example: 'RAV4 Prime',
+            },
+            category: {
+              type: 'string',
+              example: 'Plug-in Hybrid',
+            },
+            price: {
+              type: 'number',
+              example: 32000,
+            },
+            quantity: {
+              type: 'integer',
+              example: 8,
+            },
+          },
+        },
       },
     },
   },

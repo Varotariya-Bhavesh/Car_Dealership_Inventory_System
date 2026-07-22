@@ -24,9 +24,14 @@ A robust, production-ready RESTful backend API built using **Node.js**, **TypeSc
   - `POST /api/vehicles` — Adds a new vehicle to inventory after validating required fields (`make`, `model`, `category`, `price`, `quantity`).
   - `GET /api/vehicles` — Retrieves all available vehicles sorted by newest creation date.
   - `GET /api/vehicles/search` — Dynamically searches & filters vehicles by `make`, `model`, `category`, or price range (`minPrice`, `maxPrice`).
+  - `GET /api/vehicles/:id` — Retrieves detailed information for a single vehicle by ID.
+  - `PUT /api/vehicles/:id` — Updates vehicle details (`make`, `model`, `category`, `price`, `quantity`) with non-negative validation.
+  - `DELETE /api/vehicles/:id` — **(Admin Only)** Permanently deletes a vehicle from inventory.
+  - `POST /api/vehicles/:id/purchase` — Decrements stock quantity by 1 upon customer purchase (returns `400 Bad Request` if out of stock).
+  - `POST /api/vehicles/:id/restock` — **(Admin Only)** Restocks inventory by incrementing vehicle quantity by a positive amount.
 
-- **Interactive Documentation:** Live Swagger UI available at `/api-docs/`.
-- **Domain Layering & Clean Architecture:** Controller -> Service -> Database abstraction. Custom domain exception hierarchy.
+- **Interactive Documentation:** Live Swagger UI available at `/api-docs/` and raw OpenAPI JSON spec at `/api-docs.json`.
+- **Domain Layering & Clean Architecture:** Controller -> Service -> Database abstraction with strict TypeScript interfaces and custom domain exception hierarchy.
 
 ---
 
@@ -153,6 +158,11 @@ To retrieve the raw OpenAPI 3.0 JSON specification:
 ## 🧪 Running Tests (TDD)
 
 The test suite runs using Jest & Supertest without modifying your live database (Supabase is fully mocked for fast, isolated test execution).
+
+All **48 integration & unit tests** across 3 test suites pass cleanly:
+- `tests/auth.test.ts` (User Registration, Login, Token generation, Error handling)
+- `tests/vehicle.test.ts` (Full CRUD operations, Filtering, Purchase, Restock, Role Authorization)
+- `tests/swagger.test.ts` (Swagger UI HTML & OpenAPI JSON specs)
 
 ```bash
 # Run all test suites
