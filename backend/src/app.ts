@@ -26,7 +26,11 @@ app.get('/api-docs.json', (_req: Request, res: Response) => {
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
 import authRoutes from './routes/auth.routes';
+import vehicleRoutes from './routes/vehicle.routes';
+
 app.use('/api/auth', authRoutes);
+app.use('/api/vehicles', vehicleRoutes);
+
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

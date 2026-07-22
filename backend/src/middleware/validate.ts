@@ -74,3 +74,51 @@ export const validateLogin = (
 
   next();
 };
+
+// ─── Create Vehicle Validator ──────────────────────────────────────────────────
+
+/**
+ * Validates the request body for POST /api/vehicles.
+ * Checks make, model, category, price, quantity.
+ */
+export const validateCreateVehicle = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const { make, model, category, price, quantity } = req.body as Record<string, unknown>;
+
+  if (!make || typeof make !== 'string' || make.trim() === '') {
+    res.status(400).json({ message: 'Vehicle make is required' });
+    return;
+  }
+
+  if (!model || typeof model !== 'string' || model.trim() === '') {
+    res.status(400).json({ message: 'Vehicle model is required' });
+    return;
+  }
+
+  if (!category || typeof category !== 'string' || category.trim() === '') {
+    res.status(400).json({ message: 'Vehicle category is required' });
+    return;
+  }
+
+  if (price === undefined || price === null || typeof price !== 'number' || isNaN(price) || price < 0) {
+    res.status(400).json({ message: 'Vehicle price is required and must be a non-negative number' });
+    return;
+  }
+
+  if (
+    quantity === undefined ||
+    quantity === null ||
+    typeof quantity !== 'number' ||
+    isNaN(quantity) ||
+    quantity < 0
+  ) {
+    res.status(400).json({ message: 'Vehicle quantity in stock is required and must be a non-negative number' });
+    return;
+  }
+
+  next();
+};
+

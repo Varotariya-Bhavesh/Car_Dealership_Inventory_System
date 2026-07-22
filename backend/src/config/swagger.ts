@@ -117,6 +117,72 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
+        Vehicle: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              format: 'uuid',
+              example: '550e8400-e29b-41d4-a716-446655440000',
+            },
+            make: {
+              type: 'string',
+              example: 'Toyota',
+            },
+            model: {
+              type: 'string',
+              example: 'RAV4',
+            },
+            category: {
+              type: 'string',
+              example: 'SUV',
+            },
+            price: {
+              type: 'number',
+              example: 28500,
+            },
+            quantity: {
+              type: 'integer',
+              example: 5,
+            },
+            created_at: {
+              type: 'string',
+              format: 'date-time',
+              example: '2026-07-22T12:00:00.000Z',
+            },
+            updated_at: {
+              type: 'string',
+              format: 'date-time',
+              example: '2026-07-22T12:00:00.000Z',
+            },
+          },
+        },
+        CreateVehicleRequest: {
+          type: 'object',
+          required: ['make', 'model', 'category', 'price', 'quantity'],
+          properties: {
+            make: {
+              type: 'string',
+              example: 'Toyota',
+            },
+            model: {
+              type: 'string',
+              example: 'RAV4',
+            },
+            category: {
+              type: 'string',
+              example: 'SUV',
+            },
+            price: {
+              type: 'number',
+              example: 28500,
+            },
+            quantity: {
+              type: 'integer',
+              example: 5,
+            },
+          },
+        },
       },
     },
   },

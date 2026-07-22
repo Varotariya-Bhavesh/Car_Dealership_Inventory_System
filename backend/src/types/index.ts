@@ -44,9 +44,39 @@ export interface JwtPayload {
   role: 'admin' | 'staff';
 }
 
+// ─── Vehicle Types ─────────────────────────────────────────────────────────────
+
+export interface Vehicle {
+  id: string;
+  make: string;
+  model: string;
+  category: string;
+  price: number;
+  quantity: number;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface CreateVehicleRequestBody {
+  make: string;
+  model: string;
+  category: string;
+  price: number;
+  quantity: number;
+}
+
+export interface VehicleSearchQuery {
+  make?: string;
+  model?: string;
+  category?: string;
+  minPrice?: string;
+  maxPrice?: string;
+}
+
 // ─── API Error Types ──────────────────────────────────────────────────────────
 
 export interface ApiError {
   message: string;
   errors?: Record<string, string>;
 }
+
