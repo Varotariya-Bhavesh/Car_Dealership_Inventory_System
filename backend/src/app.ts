@@ -1,4 +1,5 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import * as dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
@@ -9,6 +10,10 @@ dotenv.config();
 const app: Application = express();
 
 // ─── Global Middleware ────────────────────────────────────────────────────────
+app.use(cors({
+  origin: true, // Allow frontend origin (e.g. http://localhost:3001)
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -30,7 +35,6 @@ import vehicleRoutes from './routes/vehicle.routes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
-
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

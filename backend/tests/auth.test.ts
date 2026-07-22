@@ -52,7 +52,7 @@ describe('POST /api/auth/register', () => {
   });
 
   // ── Happy Path ──────────────────────────────────────────────────────────────
-
+  console.log("login")
   it('should register a new user and return 201 with user data (no password)', async () => {
     // Arrange: Supabase returns the newly created user
     mockFrom.mockReturnValue({
