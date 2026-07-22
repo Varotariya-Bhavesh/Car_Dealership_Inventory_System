@@ -73,7 +73,20 @@ export interface VehicleSearchQuery {
   maxPrice?: string;
 }
 
+export interface UpdateVehicleRequestBody {
+  make?: string;
+  model?: string;
+  category?: string;
+  price?: number;
+  quantity?: number;
+}
+
+export interface AdjustStockRequestBody {
+  adjustment: number;
+}
+
 // ─── API Error Types ──────────────────────────────────────────────────────────
+
 
 export interface ApiError {
   message: string;

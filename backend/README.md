@@ -20,6 +20,11 @@ A robust, production-ready RESTful backend API built using **Node.js**, **TypeSc
 - **User Authentication:**
   - `POST /api/auth/register` — Validates payload, checks email uniqueness, hashes passwords with bcrypt, inserts user record into Supabase, and returns a clean public user profile (never exposing `password_hash`).
   - `POST /api/auth/login` — Authenticates credentials, generates a signed JWT token containing `userId`, `email`, and `role`, and protects against user-enumeration attacks by returning uniform error messages.
+- **Core Vehicle Inventory Operations (JWT Protected):**
+  - `POST /api/vehicles` — Adds a new vehicle to inventory after validating required fields (`make`, `model`, `category`, `price`, `quantity`).
+  - `GET /api/vehicles` — Retrieves all available vehicles sorted by newest creation date.
+  - `GET /api/vehicles/search` — Dynamically searches & filters vehicles by `make`, `model`, `category`, or price range (`minPrice`, `maxPrice`).
+
 - **Interactive Documentation:** Live Swagger UI available at `/api-docs/`.
 - **Domain Layering & Clean Architecture:** Controller -> Service -> Database abstraction. Custom domain exception hierarchy.
 
@@ -31,28 +36,35 @@ A robust, production-ready RESTful backend API built using **Node.js**, **TypeSc
 backend/
 ├── src/
 │   ├── config/
-│   │   ├── supabase.ts        # Supabase Service-Role client initialization
-│   │   └── swagger.ts         # Swagger OpenAPI 3.0 configuration
+│   │   ├── supabase.ts          # Supabase Service-Role client initialization
+│   │   └── swagger.ts           # Swagger OpenAPI 3.0 configuration
 │   ├── controllers/
-│   │   └── auth.controller.ts # Thin HTTP request handlers
+│   │   ├── auth.controller.ts   # Authentication HTTP request handlers
+│   │   └── vehicle.controller.ts# Vehicle inventory HTTP request handlers
 │   ├── errors/
-│   │   └── app-error.ts       # Custom domain exception classes
+│   │   └── app-error.ts         # Custom domain exception classes
 │   ├── middleware/
-│   │   └── validate.ts        # Request payload validation guards
+│   │   ├── auth.middleware.ts   # JWT authentication verification guard
+│   │   └── validate.ts          # Request payload validation guards
+│   ├── repositories/
+│   │   └── vehicle.repository.ts# Supabase database abstraction layer for vehicles
 │   ├── routes/
-│   │   └── auth.routes.ts     # Express routes annotated with @openapi
+│   │   ├── auth.routes.ts       # Express auth routes annotated with @openapi
+│   │   └── vehicle.routes.ts    # Express vehicle routes annotated with @openapi
 │   ├── services/
-│   │   └── auth.service.ts    # Core authentication & user business logic
+│   │   ├── auth.service.ts      # Authentication & user business logic
+│   │   └── vehicle.service.ts   # Vehicle inventory business logic
 │   ├── types/
-│   │   └── index.ts           # Shared TypeScript interfaces & types
-│   ├── app.ts                 # Express Application factory (testable without port binding)
-│   └── server.ts              # Entry point starting HTTP server
+│   │   └── index.ts             # Shared TypeScript interfaces & types
+│   ├── app.ts                   # Express Application factory (testable without port binding)
+│   └── server.ts                # Entry point starting HTTP server
 ├── tests/
-│   ├── auth.test.ts           # TDD unit/integration tests for Auth endpoints
-│   └── swagger.test.ts        # Tests verifying Swagger UI endpoints
-├── .env.example               # Environment variables template
-├── jest.config.js             # Jest & ts-jest configuration
-├── tsconfig.json              # TypeScript configuration (strict mode)
+│   ├── auth.test.ts             # TDD unit/integration tests for Auth endpoints
+│   ├── vehicle.test.ts          # TDD unit/integration tests for Vehicle endpoints
+│   └── swagger.test.ts          # Tests verifying Swagger UI endpoints
+├── .env.example                 # Environment variables template
+├── jest.config.js               # Jest & ts-jest configuration
+├── tsconfig.json                # TypeScript configuration (strict mode)
 └── package.json
 ```
 
@@ -63,6 +75,7 @@ backend/
 To initialize the database table in your Supabase project, execute the following SQL statement in the **Supabase SQL Editor**:
 
 ```sql
+-- 1. Users Table
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
@@ -71,7 +84,20 @@ CREATE TABLE users (
   role TEXT NOT NULL DEFAULT 'staff' CHECK (role IN ('admin', 'staff')),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 2. Vehicles Table
+CREATE TABLE vehicles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    make VARCHAR(100) NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    price NUMERIC(12, 2) NOT NULL CHECK (price >= 0),
+    quantity INT NOT NULL DEFAULT 0 CHECK (quantity >= 0),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 ```
+
 
 ---
 
