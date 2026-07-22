@@ -336,4 +336,307 @@ describe('Vehicle Endpoints Test Suite', () => {
       expect(res.body.vehicles).toEqual(suvVehicles);
     });
   });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 5. GET /api/vehicles/:id — Retrieve Single Vehicle by ID
+  // ───────────────────────────────────────────────────────────────────────────
+  describe('GET /api/vehicles/:id', () => {
+    it('should return 200 OK with vehicle details when vehicle exists', async () => {
+      mockFrom.mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: MOCK_VEHICLE,
+          error: null,
+        }),
+      });
+
+      const res = await request(app)
+        .get(`/api/vehicles/${MOCK_VEHICLE.id}`)
+        .set('Authorization', `Bearer ${validToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('vehicle');
+      expect(res.body.vehicle).toEqual(MOCK_VEHICLE);
+    });
+
+    it('should return 404 Not Found when vehicle does not exist', async () => {
+      mockFrom.mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: null,
+          error: { code: 'PGRST116', message: 'No rows found' },
+        }),
+      });
+
+      const res = await request(app)
+        .get('/api/vehicles/00000000-0000-0000-0000-000000000000')
+        .set('Authorization', `Bearer ${validToken}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body).toHaveProperty('message');
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 6. PUT /api/vehicles/:id — Update Vehicle
+  // ───────────────────────────────────────────────────────────────────────────
+  describe('PUT /api/vehicles/:id', () => {
+    it('should update vehicle details and return 200 OK for authenticated user', async () => {
+      const updatedVehicle = { ...MOCK_VEHICLE, price: 30000 };
+
+      mockFrom.mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: updatedVehicle,
+          error: null,
+        }),
+      });
+
+      const res = await request(app)
+        .put(`/api/vehicles/${MOCK_VEHICLE.id}`)
+        .set('Authorization', `Bearer ${validToken}`)
+        .send({ price: 30000 });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('message');
+      expect(res.body).toHaveProperty('vehicle');
+      expect(res.body.vehicle.price).toBe(30000);
+    });
+
+    it('should return 404 Not Found if vehicle to update does not exist', async () => {
+      mockFrom.mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: null,
+          error: { code: 'PGRST116', message: 'No rows found' },
+        }),
+      });
+
+      const res = await request(app)
+        .put('/api/vehicles/00000000-0000-0000-0000-000000000000')
+        .set('Authorization', `Bearer ${validToken}`)
+        .send({ price: 30000 });
+
+      expect(res.status).toBe(404);
+      expect(res.body).toHaveProperty('message');
+    });
+
+    it('should return 400 Bad Request if update payload has negative price', async () => {
+      const res = await request(app)
+        .put(`/api/vehicles/${MOCK_VEHICLE.id}`)
+        .set('Authorization', `Bearer ${validToken}`)
+        .send({ price: -500 });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty('message');
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 7. DELETE /api/vehicles/:id — Delete Vehicle (Admin Only)
+  // ───────────────────────────────────────────────────────────────────────────
+  describe('DELETE /api/vehicles/:id', () => {
+    it('should return 403 Forbidden when a non-admin (staff) user tries to delete a vehicle', async () => {
+      const staffToken = generateValidToken('staff');
+
+      const res = await request(app)
+        .delete(`/api/vehicles/${MOCK_VEHICLE.id}`)
+        .set('Authorization', `Bearer ${staffToken}`);
+
+      expect(res.status).toBe(403);
+      expect(res.body).toHaveProperty('message');
+      expect(res.body.message).toMatch(/forbidden|admin/i);
+    });
+
+    it('should return 200 OK and delete vehicle when executed by an Admin user', async () => {
+      const adminToken = generateValidToken('admin');
+
+      mockFrom.mockReturnValue({
+        delete: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: MOCK_VEHICLE,
+          error: null,
+        }),
+      });
+
+      const res = await request(app)
+        .delete(`/api/vehicles/${MOCK_VEHICLE.id}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('message');
+      expect(res.body.message).toMatch(/deleted/i);
+    });
+
+    it('should return 404 Not Found when Admin tries to delete a non-existent vehicle', async () => {
+      const adminToken = generateValidToken('admin');
+
+      mockFrom.mockReturnValue({
+        delete: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: null,
+          error: { code: 'PGRST116', message: 'No rows found' },
+        }),
+      });
+
+      const res = await request(app)
+        .delete('/api/vehicles/00000000-0000-0000-0000-000000000000')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body).toHaveProperty('message');
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 8. POST /api/vehicles/:id/purchase — Purchase Vehicle (Decrement Stock)
+  // ───────────────────────────────────────────────────────────────────────────
+  describe('POST /api/vehicles/:id/purchase', () => {
+    it('should decrease stock count by 1 and return 200 OK when vehicle is in stock', async () => {
+      const purchasedVehicle = { ...MOCK_VEHICLE, quantity: MOCK_VEHICLE.quantity - 1 };
+
+      mockFrom.mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn()
+          .mockResolvedValueOnce({ data: MOCK_VEHICLE, error: null }) // initial fetch
+          .mockResolvedValueOnce({ data: purchasedVehicle, error: null }), // update response
+      });
+
+      const res = await request(app)
+        .post(`/api/vehicles/${MOCK_VEHICLE.id}/purchase`)
+        .set('Authorization', `Bearer ${validToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('message');
+      expect(res.body).toHaveProperty('vehicle');
+      expect(res.body.vehicle.quantity).toBe(4);
+    });
+
+    it('should return 400 Bad Request if vehicle stock is 0 (out of stock)', async () => {
+      const outOfStockVehicle = { ...MOCK_VEHICLE, quantity: 0 };
+
+      mockFrom.mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: outOfStockVehicle,
+          error: null,
+        }),
+      });
+
+      const res = await request(app)
+        .post(`/api/vehicles/${MOCK_VEHICLE.id}/purchase`)
+        .set('Authorization', `Bearer ${validToken}`);
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty('message');
+      expect(res.body.message).toMatch(/stock|out of stock/i);
+    });
+
+    it('should return 404 Not Found if vehicle to purchase does not exist', async () => {
+      mockFrom.mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: null,
+          error: { code: 'PGRST116', message: 'No rows found' },
+        }),
+      });
+
+      const res = await request(app)
+        .post('/api/vehicles/00000000-0000-0000-0000-000000000000/purchase')
+        .set('Authorization', `Bearer ${validToken}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body).toHaveProperty('message');
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 9. POST /api/vehicles/:id/restock — Restock Vehicle (Admin Only)
+  // ───────────────────────────────────────────────────────────────────────────
+  describe('POST /api/vehicles/:id/restock', () => {
+    it('should return 403 Forbidden when a non-admin (staff) user tries to restock a vehicle', async () => {
+      const staffToken = generateValidToken('staff');
+
+      const res = await request(app)
+        .post(`/api/vehicles/${MOCK_VEHICLE.id}/restock`)
+        .set('Authorization', `Bearer ${staffToken}`)
+        .send({ quantity: 5 });
+
+      expect(res.status).toBe(403);
+      expect(res.body).toHaveProperty('message');
+      expect(res.body.message).toMatch(/forbidden|admin/i);
+    });
+
+    it('should increase stock count and return 200 OK for Admin user', async () => {
+      const adminToken = generateValidToken('admin');
+      const restockedVehicle = { ...MOCK_VEHICLE, quantity: MOCK_VEHICLE.quantity + 5 };
+
+      mockFrom.mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn()
+          .mockResolvedValueOnce({ data: MOCK_VEHICLE, error: null }) // initial fetch
+          .mockResolvedValueOnce({ data: restockedVehicle, error: null }), // update response
+      });
+
+      const res = await request(app)
+        .post(`/api/vehicles/${MOCK_VEHICLE.id}/restock`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ quantity: 5 });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('message');
+      expect(res.body).toHaveProperty('vehicle');
+      expect(res.body.vehicle.quantity).toBe(10);
+    });
+
+    it('should return 400 Bad Request if restock quantity is missing or invalid (<= 0)', async () => {
+      const adminToken = generateValidToken('admin');
+
+      const res = await request(app)
+        .post(`/api/vehicles/${MOCK_VEHICLE.id}/restock`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ quantity: -3 });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty('message');
+    });
+
+    it('should return 404 Not Found when Admin tries to restock non-existent vehicle', async () => {
+      const adminToken = generateValidToken('admin');
+
+      mockFrom.mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: null,
+          error: { code: 'PGRST116', message: 'No rows found' },
+        }),
+      });
+
+      const res = await request(app)
+        .post('/api/vehicles/00000000-0000-0000-0000-000000000000/restock')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ quantity: 5 });
+
+      expect(res.status).toBe(404);
+      expect(res.body).toHaveProperty('message');
+    });
+  });
 });
+

@@ -21,8 +21,15 @@ export class UnauthorizedError extends AppError {
   }
 }
 
+export class ForbiddenError extends AppError {
+  constructor(message: string = 'Forbidden: Admin access required') {
+    super(message, 403);
+  }
+}
+
 export class ConflictError extends AppError {
   constructor(message: string = 'Conflict') {
     super(message, 409);
   }
 }
+
