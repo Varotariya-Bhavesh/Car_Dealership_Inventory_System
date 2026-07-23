@@ -44,8 +44,8 @@ export const Register: React.FC = () => {
     try {
       setIsSubmitting(true);
       await register(name.trim(), email.trim(), password);
-      showToast('Account registered and logged in successfully!', 'success');
-      navigate('/');
+      showToast('Account created successfully! Please sign in with your credentials.', 'success');
+      navigate('/login');
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Registration failed. Email may already be registered.';
       setError(msg);

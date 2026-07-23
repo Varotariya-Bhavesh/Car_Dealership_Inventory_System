@@ -51,8 +51,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const register = async (name: string, email: string, password: string): Promise<void> => {
     await api.post<RegisterResponse>('/auth/register', { name, email, password });
-    // Auto-login after successful registration
-    await login(email, password);
   };
 
   const logout = () => {
