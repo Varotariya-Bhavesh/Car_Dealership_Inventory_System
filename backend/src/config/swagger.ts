@@ -1,4 +1,5 @@
 import swaggerJsdoc from 'swagger-jsdoc';
+import path from 'path';
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -13,6 +14,10 @@ const options: swaggerJsdoc.Options = {
       },
     },
     servers: [
+      {
+        url: '/',
+        description: 'Current Environment Server',
+      },
       {
         url: 'http://localhost:3000',
         description: 'Local Development Server',
@@ -211,7 +216,14 @@ const options: swaggerJsdoc.Options = {
       },
     },
   },
-  apis: ['./src/routes/*.ts', './src/routes/**/*.ts'],
+  apis: [
+    path.join(__dirname, '../routes/*.ts'),
+    path.join(__dirname, '../routes/*.js'),
+    path.join(__dirname, '../routes/**/*.ts'),
+    path.join(__dirname, '../routes/**/*.js'),
+    './src/routes/*.ts',
+    './dist/routes/*.js',
+  ],
 };
 
 export const swaggerSpec = swaggerJsdoc(options);

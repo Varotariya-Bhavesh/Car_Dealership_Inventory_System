@@ -46,7 +46,7 @@ const MOCK_USER = {
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/auth/register
 // ─────────────────────────────────────────────────────────────────────────────
-describe('POST /api/auth/register', () => {
+describe('POST / */register', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

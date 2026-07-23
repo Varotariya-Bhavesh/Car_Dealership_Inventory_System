@@ -23,7 +23,21 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 // ─── Swagger Documentation ────────────────────────────────────────────────────
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+const SWAGGER_CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css';
+const SWAGGER_JS_CUSTOM = [
+  'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js',
+];
+
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCssUrl: SWAGGER_CSS_URL,
+    customJs: SWAGGER_JS_CUSTOM,
+    customSiteTitle: 'Car Dealership API Documentation',
+  })
+);
 app.get('/api-docs.json', (_req: Request, res: Response) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
