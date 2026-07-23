@@ -1,8 +1,8 @@
 # 🚗 AutoVault — Car Dealership Inventory System
 
-AutoVault is a full-stack, production-ready Car Inventory Management System built using **React 18**, **TypeScript**, **Vite**, **Tailwind CSS**, **Node.js**, **Express**, and **Supabase (PostgreSQL & Storage)**.
+AutoVault is a full-stack, production-ready Car Inventory Management System built using **React 18**, **TypeScript**, **Vite**, **Tailwind CSS**, **Framer Motion**, **Canvas Confetti**, **Node.js**, **Express**, and **Supabase (PostgreSQL & Storage)**.
 
-It provides a responsive single-page dashboard for browsing, filtering, and purchasing vehicle inventory, alongside a role-protected administrative suite for managing vehicles, stock quantities, and uploading vehicle photos to Supabase Storage.
+It provides a responsive, interactive luxury automotive dashboard for browsing, searching, inspecting low/out-of-stock metrics, and purchasing vehicle inventory, alongside a role-protected administrative suite for managing vehicles, restocking stock quantities, and uploading vehicle photos to Supabase Storage.
 
 ---
 
@@ -10,10 +10,11 @@ It provides a responsive single-page dashboard for browsing, filtering, and purc
 
 ### Frontend (`/frontend`)
 - **Core:** React 18, TypeScript, Vite
-- **Styling:** Tailwind CSS (Glassmorphism design system & dark mode theme)
+- **Styling:** Tailwind CSS (Luxury automotive dark aesthetic, dynamic ambient glowing mesh background `#080d1a`, glassmorphic cards, glow inputs & gradient headers)
+- **Animations & FX:** `framer-motion` (backdrop blur fade-in & scale-up modal transitions), `canvas-confetti` (purchase celebration confetti burst)
 - **Routing & State:** React Router DOM (v6), React Context API (`AuthContext` & `ToastContext`)
 - **API Integration:** Axios with JWT request/response interceptors & `FormData` upload support
-- **Icons & UI Feedback:** Lucide React icons, Toast notifications, and animated skeleton loaders
+- **Icons & Feedback:** Lucide React icons, Toast notifications, active filter pills, and animated skeleton loaders
 
 ### Backend (`/backend`)
 - **Runtime & Language:** Node.js, TypeScript (ES2020)
@@ -29,21 +30,30 @@ It provides a responsive single-page dashboard for browsing, filtering, and purc
 ## ✨ Features Overview
 
 ### 🔑 Authentication & Role Authorization
-- **User Registration & Login:** Password hashing with bcrypt, input validation, and JWT token issuance.
-- **Session Persistence:** Secure `localStorage` storage for JWT tokens and user profiles.
+- **Split-Screen Luxury Auth Suite:** Feature showcase side-panel alongside floating 3D-styled glass cards for Sign In and Registration.
+- **Session Persistence & Security:** Secure `localStorage` storage for JWT tokens and user profiles with bcrypt password hashing.
 - **Role-Based Access Control:** Role scoping (`admin` vs `staff`) enforcing Admin-only privileges for adding, updating, restocking, and deleting vehicles.
 
-### 🚗 Vehicle Catalog & Filtering
-- **Interactive Card Grid:** Renders vehicle specs (Make, Model, Category, Price, Stock Count) and high-resolution vehicle photo banners uploaded to Supabase.
-- **Live Search & Specs Filter:** Filter by Make, Model, Category (Sedan, SUV, Electric, Truck, Coupe, Luxury, Hatchback), and Price range (Min/Max).
-- **Dynamic Stock Badges:** Visual badges indicating *In Stock*, *Low Stock (≤ 3)*, and *Out of Stock*.
+### 📊 Interactive Executive Metrics Bar & Stock Inspection
+- **4 Summary Metrics Cards:**
+  1. *Total Fleet Vehicles* (Total units & model count)
+  2. *Total Fleet Valuation ($)* (Gross showroom capital value)
+  3. *Low Stock Alerts (≤ 3)* (Clickable with hover glow indicator)
+  4. *Out of Stock* (Clickable with hover glow indicator)
+- **Interactive Inspection Modal (`StockDetailsModal.tsx`):** Clicking on *Low Stock Alerts* or *Out of Stock* opens a glassmorphic modal listing affected vehicles with direct Admin "Restock" CTA buttons and "Filter Catalog Below" navigation.
 
-### 🛒 One-Click Purchasing
+### 🚗 Vehicle Catalog & Filtering
+- **Interactive Card Grid:** Renders vehicle specs (Make, Model, Category, Price, Stock Count), image zoom on hover (`group-hover:scale-110`), neon stock pills, and Admin quick action hover menu.
+- **Live Search & Specs Filter:** Filter by Make, Model, Category (Sedan, SUV, Electric, Truck, Coupe, Luxury, Hatchback), and Price range (Min/Max).
+- **Real-Time Active Filter Tag Pills:** Active filter tags with quick "Clear All" functionality.
+
+### 🛒 One-Click Purchasing & Confetti Celebration
 - **Stock Decrement:** One-click purchase button (`POST /api/vehicles/:id/purchase`) reducing inventory by 1.
+- **Purchase Celebration:** Fires off a celebratory `canvas-confetti` particle burst upon successful vehicle purchase!
 - **Stock Guard:** Automatically disables purchase actions when stock quantity reaches 0.
 
 ### 📷 Supabase Storage & Admin Controls
-- **Photo Upload & Preview:** Add & Edit modals feature image drag-and-drop / file selector with live preview.
+- **Framer Motion Dropzone Modals:** Add & Edit modals feature Framer Motion scale-up transitions, drag-and-drop file dropzones with hover highlight effects, file validation, and live image previews.
 - **Supabase Storage Bucket Integration:** Automatically uploads binary image files to Supabase Storage (`vehicle-images` bucket) and stores the CDN public URL in the database.
 - **Inventory Management:** Full CRUD operations (Add, Edit, Delete, Restock) restricted to Admin users.
 
@@ -89,27 +99,29 @@ Car Inventory Management System/
     │   ├── api/
     │   │   └── axios.ts              # Axios instance & JWT interceptor
     │   ├── components/
-    │   │   ├── AddVehicleModal.tsx   # Add vehicle modal (with image upload picker)
-    │   │   ├── DeleteVehicleModal.tsx# Delete confirmation modal
-    │   │   ├── EditVehicleModal.tsx  # Edit vehicle modal (with photo replacement)
-    │   │   ├── Navbar.tsx            # Navigation header & user menu
+    │   │   ├── AddVehicleModal.tsx   # Add vehicle modal (Framer Motion + Dropzone preview)
+    │   │   ├── DashboardStats.tsx    # Executive summary stat cards (Interactive & Clickable)
+    │   │   ├── DeleteVehicleModal.tsx# Delete confirmation modal with scale animation
+    │   │   ├── EditVehicleModal.tsx  # Edit vehicle modal (Framer Motion + photo replacement)
+    │   │   ├── Navbar.tsx            # Glassmorphic header & user menu with Admin badge
     │   │   ├── ProtectedRoute.tsx    # Auth route guard
     │   │   ├── RestockVehicleModal.tsx# Admin restock quantity modal
+    │   │   ├── StockDetailsModal.tsx # Interactive low stock / out of stock inspection modal
     │   │   ├── Toast.tsx             # Toast notification alert
-    │   │   ├── VehicleCard.tsx       # Catalog grid card with image banner
-    │   │   └── VehicleFilters.tsx    # Search & specifications filter bar
+    │   │   ├── VehicleCard.tsx       # Showroom grid card with image zoom & purchase confetti
+    │   │   └── VehicleFilters.tsx    # Search & specifications filter bar with active tag pills
     │   ├── context/
     │   │   ├── AuthContext.tsx       # Auth state context
     │   │   └── ToastContext.tsx      # Global notification context
     │   ├── pages/
-    │   │   ├── Dashboard.tsx         # Catalog page
-    │   │   ├── Login.tsx             # Sign in page
-    │   │   └── Register.tsx          # Account registration page
+    │   │   ├── Dashboard.tsx         # Catalog & executive metrics page
+    │   │   ├── Login.tsx             # Split-screen luxury sign in page
+    │   │   └── Register.tsx          # Split-screen account registration page
     │   ├── services/
     │   │   └── vehicleService.ts     # Frontend API service (Axios + FormData)
     │   ├── types/
     │   │   └── index.ts              # Frontend TypeScript interfaces
-    │   ├── App.tsx                   # Main router setup
+    │   ├── App.tsx                   # Main router & ambient background setup
     │   └── main.tsx                  # React DOM root entry
     ├── index.html
     ├── package.json
@@ -231,7 +243,7 @@ npm run dev
 | `/api/vehicles` | `GET` | Staff, Admin | N/A | Retrieve all catalog vehicles |
 | `/api/vehicles/search` | `GET` | Staff, Admin | N/A | Search/filter vehicle catalog |
 | `/api/vehicles/:id` | `GET` | Staff, Admin | N/A | Fetch single vehicle details |
-| `/api/vehicles/:id/purchase` | `POST` | Staff, Admin | N/A | Purchase vehicle (decrements stock) |
+| `/api/vehicles/:id/purchase` | `POST` | Staff, Admin | N/A | Purchase vehicle (decrements stock & triggers confetti) |
 | `/api/vehicles` | `POST` | Admin Only | `multipart/form-data` | Add vehicle (with optional image file upload) |
 | `/api/vehicles/:id` | `PUT` | Admin Only | `multipart/form-data` | Update vehicle (with optional photo replacement) |
 | `/api/vehicles/:id/restock` | `POST` | Admin Only | `application/json` | Restock vehicle inventory quantity |
@@ -241,13 +253,14 @@ npm run dev
 
 ## 📸 Screenshots & UI Showcase
 
-> **Note to Evaluator:** Place application screenshots in a `./docs/screenshots/` directory and replace the placeholders below.
-
 | View | Screenshot |
 | :--- | :--- |
-| **Catalog Dashboard** | `![Dashboard](./docs/screenshots/dashboard.png)` |
+| **Sign In / Login Terminal** | `![Login Page](./docs/screenshots/login.png)` |
+| **Account Registration** | `![Register Page](./docs/screenshots/register.png)` |
+| **Catalog Dashboard & Executive Metrics** | `![Dashboard](./docs/screenshots/dashboard.png)` |
 | **Vehicle Filtering & Search** | `![Filtering](./docs/screenshots/filtering.png)` |
-| **Add / Edit Vehicle (Admin)** | `![Admin Modal](./docs/screenshots/admin-modal.png)` |
+| **Interactive Stock Details Inspection** | `![Stock Inspection](./docs/screenshots/stock-modal.png)` |
+| **Add / Edit Vehicle (Framer Motion & Dropzone)** | `![Admin Modal](./docs/screenshots/admin-modal.png)` |
 | **Interactive API Documentation** | `![Swagger UI](./docs/screenshots/swagger.png)` |
 
 ---

@@ -87,21 +87,24 @@ export class VehicleRepository {
   }
 
   /**
-   * Search/filter vehicles from Supabase.
+   * Search/filter vehicles from Supabase with case-insensitive pattern matching (.ilike).
    */
   public static async search(query: VehicleSearchQuery): Promise<Vehicle[]> {
     let dbQuery = supabase.from('vehicles').select('*');
 
     if (query.make && query.make.trim() !== '') {
-      dbQuery = dbQuery.ilike('make', `%${query.make.trim()}%`);
+      const trimmedMake = query.make.trim();
+      dbQuery = dbQuery.ilike('make', `%${trimmedMake}%`);
     }
 
     if (query.model && query.model.trim() !== '') {
-      dbQuery = dbQuery.ilike('model', `%${query.model.trim()}%`);
+      const trimmedModel = query.model.trim();
+      dbQuery = dbQuery.ilike('model', `%${trimmedModel}%`);
     }
 
-    if (query.category && query.category.trim() !== '') {
-      dbQuery = dbQuery.ilike('category', `%${query.category.trim()}%`);
+    if (query.category && query.category.trim() !== '' && query.category.trim() !== 'All Categories') {
+      const trimmedCategory = query.category.trim();
+      dbQuery = dbQuery.ilike('category', `%${trimmedCategory}%`);
     }
 
     if (query.minPrice !== undefined && query.minPrice !== '') {

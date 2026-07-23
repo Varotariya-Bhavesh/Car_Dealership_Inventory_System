@@ -110,7 +110,6 @@ CREATE TABLE vehicles (
 ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS image_url TEXT;
 ```
 
-
 ---
 
 ## ⚙️ Environment Variables Setup

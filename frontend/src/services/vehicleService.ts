@@ -37,14 +37,24 @@ export const VehicleService = {
     return response.data.vehicles;
   },
 
-  // Search & filter vehicles
+  // Search & filter vehicles with trimmed params
   searchVehicles: async (params: VehicleFilterParams): Promise<Vehicle[]> => {
     const query = new URLSearchParams();
-    if (params.make) query.append('make', params.make);
-    if (params.model) query.append('model', params.model);
-    if (params.category) query.append('category', params.category);
-    if (params.minPrice) query.append('minPrice', params.minPrice);
-    if (params.maxPrice) query.append('maxPrice', params.maxPrice);
+    if (params.make && params.make.trim()) {
+      query.append('make', params.make.trim());
+    }
+    if (params.model && params.model.trim()) {
+      query.append('model', params.model.trim());
+    }
+    if (params.category && params.category.trim() && params.category !== 'All Categories') {
+      query.append('category', params.category.trim());
+    }
+    if (params.minPrice && params.minPrice.toString().trim()) {
+      query.append('minPrice', params.minPrice.toString().trim());
+    }
+    if (params.maxPrice && params.maxPrice.toString().trim()) {
+      query.append('maxPrice', params.maxPrice.toString().trim());
+    }
 
     const response = await api.get<GetVehiclesResponse>(`/vehicles/search?${query.toString()}`);
     return response.data.vehicles;
@@ -60,9 +70,9 @@ export const VehicleService = {
   addVehicle: async (data: CreateVehicleParams): Promise<Vehicle> => {
     if (data.image) {
       const formData = new FormData();
-      formData.append('make', data.make);
-      formData.append('model', data.model);
-      formData.append('category', data.category);
+      formData.append('make', data.make.trim());
+      formData.append('model', data.model.trim());
+      formData.append('category', data.category.trim());
       formData.append('price', data.price.toString());
       formData.append('quantity', data.quantity.toString());
       formData.append('image', data.image);
@@ -81,9 +91,9 @@ export const VehicleService = {
   updateVehicle: async (id: string, data: UpdateVehicleParams): Promise<Vehicle> => {
     if (data.image) {
       const formData = new FormData();
-      if (data.make !== undefined) formData.append('make', data.make);
-      if (data.model !== undefined) formData.append('model', data.model);
-      if (data.category !== undefined) formData.append('category', data.category);
+      if (data.make !== undefined) formData.append('make', data.make.trim());
+      if (data.model !== undefined) formData.append('model', data.model.trim());
+      if (data.category !== undefined) formData.append('category', data.category.trim());
       if (data.price !== undefined) formData.append('price', data.price.toString());
       if (data.quantity !== undefined) formData.append('quantity', data.quantity.toString());
       formData.append('image', data.image);

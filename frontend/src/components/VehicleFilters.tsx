@@ -1,6 +1,7 @@
 import React from 'react';
-import { Search, Filter, RotateCcw, DollarSign } from 'lucide-react';
+import { Search, Filter, RotateCcw, DollarSign, X, Layers, Tag } from 'lucide-react';
 import { VehicleFilterParams } from '../types';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface VehicleFiltersProps {
   filters: VehicleFilterParams;
@@ -22,76 +23,99 @@ export const VehicleFilters: React.FC<VehicleFiltersProps> = ({
     });
   };
 
+  const removeSingleFilter = (field: keyof VehicleFilterParams) => {
+    onChange({
+      ...filters,
+      [field]: '',
+    });
+  };
+
   const hasActiveFilters =
     !!filters.make || !!filters.model || !!filters.category || !!filters.minPrice || !!filters.maxPrice;
 
+  // Active filter tags array
+  const activeTags: { key: keyof VehicleFilterParams; label: string; value: string }[] = [];
+  if (filters.make) activeTags.push({ key: 'make', label: 'Make', value: filters.make });
+  if (filters.model) activeTags.push({ key: 'model', label: 'Model', value: filters.model });
+  if (filters.category) activeTags.push({ key: 'category', label: 'Category', value: filters.category });
+  if (filters.minPrice) activeTags.push({ key: 'minPrice', label: 'Min Price', value: `$${filters.minPrice}` });
+  if (filters.maxPrice) activeTags.push({ key: 'maxPrice', label: 'Max Price', value: `$${filters.maxPrice}` });
+
   return (
-    <div className="bg-slate-800/80 backdrop-blur-md border border-slate-700/80 rounded-2xl p-5 mb-8 shadow-xl">
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-700/60">
-        <div className="flex items-center gap-2 text-slate-200 font-semibold">
-          <Filter className="w-5 h-5 text-blue-400" />
-          <span>Search & Filter Catalog</span>
+    <div className="glass-panel rounded-3xl p-5 mb-8 shadow-2xl relative overflow-hidden">
+      {/* Background Subtle Glow */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Header bar inside filter card */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3.5 border-b border-white/10">
+        <div className="flex items-center gap-2 text-slate-100 font-bold text-sm tracking-wide">
+          <div className="p-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+            <Filter className="w-4 h-4" />
+          </div>
+          <span>Filter Fleet Catalog</span>
         </div>
 
         {hasActiveFilters && (
           <button
             onClick={onReset}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-rose-400 transition-colors bg-slate-700/50 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-600/50"
+            className="inline-flex items-center gap-1.5 text-xs text-rose-300 hover:text-rose-200 transition-all bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1.5 rounded-xl border border-rose-500/30 active:scale-95 self-start sm:self-auto font-bold"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            Clear Filters
+            Clear All Filters
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* Inputs Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+        
         {/* Search Make */}
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+          <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">
             Make
           </label>
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="e.g. Toyota, Honda..."
+              placeholder="e.g. Porsche, Tesla..."
               value={filters.make || ''}
               onChange={(e) => handleInputChange('make', e.target.value)}
-              className="w-full pl-9 pr-3 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-3 py-2.5 bg-slate-950/70 border border-white/10 rounded-xl text-xs text-slate-100 placeholder-slate-500 glow-input outline-none"
             />
           </div>
         </div>
 
         {/* Search Model */}
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+          <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">
             Model
           </label>
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="e.g. RAV4, Civic..."
+              placeholder="e.g. 911, Model S..."
               value={filters.model || ''}
               onChange={(e) => handleInputChange('model', e.target.value)}
-              className="w-full pl-9 pr-3 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-3 py-2.5 bg-slate-950/70 border border-white/10 rounded-xl text-xs text-slate-100 placeholder-slate-500 glow-input outline-none"
             />
           </div>
         </div>
 
         {/* Category Dropdown */}
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-            Category
+          <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
+            <Layers className="w-3 h-3 text-slate-400" /> Category
           </label>
           <select
             value={filters.category || ''}
             onChange={(e) => handleInputChange('category', e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2.5 bg-slate-950/70 border border-white/10 rounded-xl text-xs text-slate-100 glow-input outline-none cursor-pointer"
           >
-            <option value="">All Categories</option>
+            <option value="" className="bg-slate-900 text-slate-200">All Categories</option>
             {categories.map((cat) => (
-              <option key={cat} value={cat}>
+              <option key={cat} value={cat} className="bg-slate-900 text-slate-100">
                 {cat}
               </option>
             ))}
@@ -100,38 +124,73 @@ export const VehicleFilters: React.FC<VehicleFiltersProps> = ({
 
         {/* Min Price */}
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+          <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">
             Min Price ($)
           </label>
           <div className="relative">
-            <DollarSign className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <DollarSign className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="number"
               placeholder="0"
               value={filters.minPrice || ''}
               onChange={(e) => handleInputChange('minPrice', e.target.value)}
-              className="w-full pl-9 pr-3 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-3 py-2.5 bg-slate-950/70 border border-white/10 rounded-xl text-xs text-slate-100 placeholder-slate-500 glow-input outline-none"
             />
           </div>
         </div>
 
         {/* Max Price */}
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+          <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">
             Max Price ($)
           </label>
           <div className="relative">
-            <DollarSign className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <DollarSign className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="number"
-              placeholder="100000"
+              placeholder="250,000"
               value={filters.maxPrice || ''}
               onChange={(e) => handleInputChange('maxPrice', e.target.value)}
-              className="w-full pl-9 pr-3 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-3 py-2.5 bg-slate-950/70 border border-white/10 rounded-xl text-xs text-slate-100 placeholder-slate-500 glow-input outline-none"
             />
           </div>
         </div>
       </div>
+
+      {/* Real-time Active Filter Tag Pills */}
+      <AnimatePresence>
+        {activeTags.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex flex-wrap items-center gap-2 pt-3.5 mt-3.5 border-t border-white/5"
+          >
+            <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400 flex items-center gap-1 mr-1">
+              <Tag className="w-3 h-3" /> Active Filters:
+            </span>
+            {activeTags.map((tag) => (
+              <motion.span
+                key={tag.key}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                className="inline-flex items-center gap-1.5 text-xs bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 px-3 py-1 rounded-full shadow-sm"
+              >
+                <span className="font-semibold text-slate-400 text-[10px]">{tag.label}:</span>
+                <span className="font-bold text-slate-100">{tag.value}</span>
+                <button
+                  onClick={() => removeSingleFilter(tag.key)}
+                  className="hover:text-rose-400 p-0.5 rounded-full hover:bg-rose-500/20 transition-colors ml-0.5"
+                  title={`Remove ${tag.label} filter`}
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </motion.span>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
