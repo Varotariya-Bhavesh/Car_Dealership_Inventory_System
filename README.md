@@ -255,13 +255,14 @@ npm run dev
 
 | View | Screenshot |
 | :--- | :--- |
-| **Sign In / Login Terminal** | `![Login Page](./docs/screenshots/login.png)` |
-| **Account Registration** | `![Register Page](./docs/screenshots/register.png)` |
-| **Catalog Dashboard & Executive Metrics** | `![Dashboard](./docs/screenshots/dashboard.png)` |
-| **Vehicle Filtering & Search** | `![Filtering](./docs/screenshots/filtering.png)` |
-| **Interactive Stock Details Inspection** | `![Stock Inspection](./docs/screenshots/stock-modal.png)` |
-| **Add / Edit Vehicle (Framer Motion & Dropzone)** | `![Admin Modal](./docs/screenshots/admin-modal.png)` |
-| **Interactive API Documentation** | `![Swagger UI](./docs/screenshots/swagger.png)` |
+| **Sign In / Login Terminal** | ![Login Page](./docs/screenshots/login.png) |
+| **Account Registration** | ![Register Page](./docs/screenshots/register.png) |
+| **Catalog Dashboard & Executive Metrics** | ![Dashboard](./docs/screenshots/dashboard.png) |
+| **Vehicle Filtering & Search** | ![Filtering](./docs/screenshots/filtering.png) |
+| **Interactive Stock Details Inspection** | ![Stock Inspection](./docs/screenshots/stock-modal.png) |
+| **Add / Edit Vehicle (Framer Motion & Dropzone)** | ![Admin Modal](./docs/screenshots/admin-modal.png) |
+| **Interactive API Documentation** | ![Swagger UI](./docs/screenshots/swagger.png) |
+
 
 ---
 
